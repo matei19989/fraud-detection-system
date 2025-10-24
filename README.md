@@ -1,6 +1,6 @@
 # Fraud Detection System
 
-🚧 **Under Active Development** - Expected Completion: December 2025
+🚧 **Under Active Development** - Expected Completion: December 2025 - January 2026
 
 ## Overview
 
