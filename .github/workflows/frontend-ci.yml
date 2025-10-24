@@ -3,10 +3,8 @@ name: Frontend CI
 on:
   push:
     branches: [ main ]
-    paths: ['fraud-detection-ui/**']
   pull_request:
     branches: [ main ]
-    paths: ['fraud-detection-ui/**']
 
 jobs:
   build-and-test:
@@ -14,10 +12,10 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
