@@ -1,0 +1,29 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'FraudDetection.*/**'
+      - 'FraudDetectionSystem.sln'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore FraudDetectionSystem.sln
+
+    - name: Build
+      run: dotnet build FraudDetectionSystem.sln --configuration Release --no-restore

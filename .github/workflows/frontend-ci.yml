@@ -1,0 +1,36 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [ main ]
+    paths: ['fraud-detection-ui/**']
+  pull_request:
+    branches: [ main ]
+    paths: ['fraud-detection-ui/**']
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: './fraud-detection-ui/package-lock.json'
+
+    - name: Install dependencies
+      working-directory: ./fraud-detection-ui
+      run: npm ci
+
+    - name: Lint
+      working-directory: ./fraud-detection-ui
+      run: npm run lint
+
+    - name: Build
+      working-directory: ./fraud-detection-ui
+      run: npm run build
