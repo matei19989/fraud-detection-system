@@ -3,9 +3,6 @@ name: Backend CI
 on:
   push:
     branches: [ main ]
-    paths: 
-      - 'FraudDetection.*/**'
-      - 'FraudDetectionSystem.sln'
   pull_request:
     branches: [ main ]
 
@@ -15,10 +12,10 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v4
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
 
