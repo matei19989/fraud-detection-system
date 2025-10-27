@@ -58,17 +58,6 @@ FraudDetectionSystem/
 - 📊 Admin dashboard for rule management
 - 📈 Analytics and reporting
 
-## Development Roadmap
-
-- [x] Project scaffolding and architecture setup
-- [ ] Domain model implementation (November 2025)
-- [ ] CQRS command/query handlers (November 2025)
-- [ ] Fraud detection engine and rules (November 2025)
-- [ ] Kafka event streaming integration (November 2025)
-- [ ] Frontend dashboard UI (December 2025)
-- [ ] Real-time alerts with SignalR (December 2025)
-- [ ] Azure deployment and CI/CD (December 2025)
-
 ## Getting Started
 
 *Full setup instructions will be added upon project completion.*
