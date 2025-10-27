@@ -22,6 +22,8 @@ builder.Services.AddCors(options =>
 
 // Add SignalR
 builder.Services.AddSignalR();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
 
 // TODO: Add MediatR configuration
 // TODO: Add DbContext
