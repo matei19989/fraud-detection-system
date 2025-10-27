@@ -20,6 +20,10 @@ public class FraudAlert : BaseEntity
     public Transaction Transaction { get; private set; } = null!;
     public FraudRule? Rule { get; private set; }
 
+    #pragma warning disable CS8618
+    private FraudAlert() { }
+    #pragma warning restore CS8618
+
     public FraudAlert(
         Guid transactionId,
         string ruleName,
