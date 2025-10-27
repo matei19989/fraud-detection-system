@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using FraudDetection.Application;
+using FraudDetection.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,10 +22,9 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-// Add SignalR
 builder.Services.AddSignalR();
-builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // TODO: Add MediatR configuration
 // TODO: Add DbContext
