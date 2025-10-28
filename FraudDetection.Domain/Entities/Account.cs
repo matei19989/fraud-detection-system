@@ -20,9 +20,9 @@ public class Account : BaseEntity
     private readonly List<Transaction> _transactions = new();
     public IReadOnlyCollection<Transaction> Transactions => _transactions.AsReadOnly();
 
-    #pragma warning disable CS8618
+#pragma warning disable CS8618
     private Account() { }
-    #pragma warning restore CS8618
+#pragma warning restore CS8618
 
     public Account(
         string accountId,

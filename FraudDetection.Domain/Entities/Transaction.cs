@@ -25,9 +25,9 @@ public class Transaction : BaseEntity
     private readonly List<FraudAlert> _fraudAlerts = new();
     public IReadOnlyCollection<FraudAlert> FraudAlerts => _fraudAlerts.AsReadOnly();
 
-    #pragma warning disable CS8618
+#pragma warning disable CS8618
     private Transaction() { }
-    #pragma warning restore CS8618
+#pragma warning restore CS8618
 
     public Transaction(
         string accountId,
