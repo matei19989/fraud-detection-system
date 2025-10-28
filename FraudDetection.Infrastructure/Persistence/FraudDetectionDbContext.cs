@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using FraudDetection.Domain.Entities;
 using FraudDetection.Domain.Common;
+using FraudDetection.Application.Interfaces;
 
 namespace FraudDetection.Infrastructure.Persistence;
 
-public class FraudDetectionDbContext : DbContext
+public class FraudDetectionDbContext : DbContext, IApplicationDbContext
 {
     public FraudDetectionDbContext(DbContextOptions<FraudDetectionDbContext> options)
         : base(options)
