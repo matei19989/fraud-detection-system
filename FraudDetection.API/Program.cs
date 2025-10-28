@@ -23,13 +23,11 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSignalR();
-builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
 
 // TODO: Add MediatR configuration
 // TODO: Add DbContext
-// TODO: Add Application services
-// TODO: Add Infrastructure services
 
 var app = builder.Build();
 
