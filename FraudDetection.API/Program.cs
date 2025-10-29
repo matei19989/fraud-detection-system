@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using FraudDetection.Application;
 using FraudDetection.Infrastructure;
+using FraudDetection.API.Hubs;
+using FraudDetection.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,12 +24,13 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+builder.Services.AddProblemDetails();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 builder.Services.AddSignalR();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
-
-// TODO: Add MediatR configuration
-// TODO: Add DbContext
 
 var app = builder.Build();
 
@@ -38,11 +41,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseExceptionHandler();
+
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 app.UseAuthorization();
 app.MapControllers();
 
-// TODO: Map SignalR hubs
+app.MapHub<FraudHub>("/hubs/fraud");
 
 app.Run();
