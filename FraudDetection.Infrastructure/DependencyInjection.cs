@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using FraudDetection.Application.Interfaces;
 using FraudDetection.Infrastructure.Persistence;
+using FraudDetection.Infrastructure.Services;
 
 namespace FraudDetection.Infrastructure;
 
@@ -12,6 +13,10 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+        
+        services.AddScoped<IRealtimeNotificationService, SignalRNotificationService>();
+
         // Add DbContext
         services.AddDbContext<FraudDetectionDbContext>(options =>
             options.UseSqlServer(

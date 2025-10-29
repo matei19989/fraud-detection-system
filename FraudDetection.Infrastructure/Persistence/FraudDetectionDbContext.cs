@@ -7,9 +7,12 @@ namespace FraudDetection.Infrastructure.Persistence;
 
 public class FraudDetectionDbContext : DbContext, IApplicationDbContext
 {
-    public FraudDetectionDbContext(DbContextOptions<FraudDetectionDbContext> options)
+    private readonly IDomainEventDispatcher? _domainEventDispatcher;
+    public FraudDetectionDbContext(DbContextOptions<FraudDetectionDbContext> options,
+        IDomainEventDispatcher? domainEventDispatcher)
         : base(options)
     {
+        _domainEventDispatcher = domainEventDispatcher;
     }
 
     public DbSet<Account> Accounts => Set<Account>();
@@ -41,6 +44,11 @@ public class FraudDetectionDbContext : DbContext, IApplicationDbContext
 
         // Propagate cancellation token to base SaveChangesAsync
         var result = await base.SaveChangesAsync(cancellationToken);
+
+        if(domainEvents.Count != 0 && _domainEventDispatcher != null)
+        {
+            await _domainEventDispatcher.DispatchAsync(domainEvents, cancellationToken);
+        }
 
         return result;
     }

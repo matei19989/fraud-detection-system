@@ -13,6 +13,6 @@ public class FraudDetectionDbContextFactory : IDesignTimeDbContextFactory<FraudD
         optionsBuilder.UseSqlServer(
             "Server=localhost;Database=FraudDetectionDb;Trusted_Connection=true;TrustServerCertificate=true;");
 
-        return new FraudDetectionDbContext(optionsBuilder.Options);
+        return new FraudDetectionDbContext(optionsBuilder.Options,null!);
     }
 }
