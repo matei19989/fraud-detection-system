@@ -24,10 +24,11 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+// Exception handling & ProblemDetails
 builder.Services.AddProblemDetails();
-
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
+// App-specific services
 builder.Services.AddSignalR();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
@@ -42,12 +43,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseExceptionHandler();
-
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 app.UseAuthorization();
-app.MapControllers();
 
+app.MapControllers();
 app.MapHub<FraudHub>("/hubs/fraud");
 
 app.Run();
