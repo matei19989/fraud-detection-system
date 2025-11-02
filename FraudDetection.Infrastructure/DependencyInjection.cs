@@ -15,7 +15,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
-        services.AddScoped<IRealtimeNotificationService, SignalRNotificationService>();
+        services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
 
         // Add DbContext
         services.AddDbContext<FraudDetectionDbContext>(options =>
