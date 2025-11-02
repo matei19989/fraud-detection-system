@@ -91,7 +91,7 @@ public class RuleEvaluationEngine : IRuleEvaluationEngine
                 EvaluateTimeOfDay(timeCondition, transaction),
 
             AmountDeviationCondition deviationCondition =>
-                await EvaluateAmountDeviationAsync(deviationCondition, transaction, account, cancellationToken),
+                EvaluateAmountDeviationAsync(deviationCondition, transaction, account),
 
             CompositeCondition compositeCondition =>
                 await EvaluateCompositeAsync(compositeCondition, transaction, account, cancellationToken),
@@ -235,11 +235,10 @@ public class RuleEvaluationEngine : IRuleEvaluationEngine
         return (triggered, score, details);
     }
 
-    private async Task<(bool, double, string)> EvaluateAmountDeviationAsync(
+    private (bool, double, string) EvaluateAmountDeviationAsync(
         AmountDeviationCondition condition,
         Transaction transaction,
-        Account account,
-        CancellationToken cancellationToken)
+        Account account)
     {
         if (account.TotalTransactions < condition.MinimumTransactionCount)
         {
