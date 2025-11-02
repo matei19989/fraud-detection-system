@@ -23,7 +23,7 @@ public class GetDashboardStatisticsQueryHandler : IRequestHandler<GetDashboardSt
         var weekAgo = today.AddDays(-7);
         var monthAgo = today.AddDays(-30);
 
-        // Execute in parallel to improve performance
+        // Execute in parallel 
         var statisticsTask = GetTransactionStatistics(today, weekAgo, monthAgo, cancellationToken);
         var alertsTask = GetAlertStatistics(today, cancellationToken);
         var amountsTask = GetAmountStatistics(today, cancellationToken);
@@ -62,6 +62,7 @@ public class GetDashboardStatisticsQueryHandler : IRequestHandler<GetDashboardSt
         DateTime monthAgo,
         CancellationToken cancellationToken)
     {
+        // SQL aggregate counts
         var todayCount = await _dbContext.Transactions
             .CountAsync(t => t.CreatedAt >= today, cancellationToken);
 
@@ -79,10 +80,14 @@ public class GetDashboardStatisticsQueryHandler : IRequestHandler<GetDashboardSt
         CancellationToken cancellationToken)
     {
         var activeAlerts = await _dbContext.FraudAlerts
-            .CountAsync(a => a.Status == AlertStatus.New || a.Status == AlertStatus.Investigating, cancellationToken);
+            .CountAsync(
+                a => a.Status == AlertStatus.New || a.Status == AlertStatus.Investigating,
+                cancellationToken);
 
         var resolvedToday = await _dbContext.FraudAlerts
-            .CountAsync(a => a.Status == AlertStatus.Resolved && a.UpdatedAt >= today, cancellationToken);
+            .CountAsync(
+                a => a.Status == AlertStatus.Resolved && a.UpdatedAt >= today,
+                cancellationToken);
 
         return (activeAlerts, resolvedToday);
     }
