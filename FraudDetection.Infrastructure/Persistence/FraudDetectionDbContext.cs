@@ -31,7 +31,7 @@ public class FraudDetectionDbContext : DbContext, IApplicationDbContext
     {
         // Publish domain events before saving
         var entities = ChangeTracker.Entries<BaseEntity>()
-            .Where(e => e.Entity.DomainEvents.Any())
+            .Where(e => e.Entity.DomainEvents.Count != 0)
             .Select(e => e.Entity)
             .ToList();
 
@@ -45,7 +45,7 @@ public class FraudDetectionDbContext : DbContext, IApplicationDbContext
         // Propagate cancellation token to base SaveChangesAsync
         var result = await base.SaveChangesAsync(cancellationToken);
 
-        if(domainEvents.Count != 0 && _domainEventDispatcher != null)
+        if (domainEvents.Count != 0 && _domainEventDispatcher != null)
         {
             await _domainEventDispatcher.DispatchAsync(domainEvents, cancellationToken);
         }

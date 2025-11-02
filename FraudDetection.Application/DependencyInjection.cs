@@ -2,6 +2,9 @@ using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using FraudDetection.Application.Behaviors;
+using FraudDetection.Application.Interfaces;
+using FraudDetection.Application.Services;
+using FraudDetection.Application.Services.RuleEngine;
 
 namespace FraudDetection.Application;
 
@@ -14,12 +17,14 @@ public static class DependencyInjection
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(assembly);
-            
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
         services.AddValidatorsFromAssembly(assembly);
+
+        services.AddScoped<IFraudDetectionService, FraudDetectionService>();
+        services.AddScoped<IRuleEvaluationEngine, RuleEvaluationEngine>();
 
         return services;
     }
