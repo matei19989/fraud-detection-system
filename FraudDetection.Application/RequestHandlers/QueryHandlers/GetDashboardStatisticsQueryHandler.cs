@@ -23,7 +23,7 @@ public class GetDashboardStatisticsQueryHandler : IRequestHandler<GetDashboardSt
         var weekAgo = today.AddDays(-7);
         var monthAgo = today.AddDays(-30);
 
-        // Execute in parallel 
+        // Execute in parallel to improve performance
         var statisticsTask = GetTransactionStatistics(today, weekAgo, monthAgo, cancellationToken);
         var alertsTask = GetAlertStatistics(today, cancellationToken);
         var amountsTask = GetAmountStatistics(today, cancellationToken);

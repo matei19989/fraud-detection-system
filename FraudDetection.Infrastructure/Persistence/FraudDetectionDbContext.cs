@@ -8,7 +8,9 @@ namespace FraudDetection.Infrastructure.Persistence;
 public class FraudDetectionDbContext : DbContext, IApplicationDbContext
 {
     private readonly IDomainEventDispatcher? _domainEventDispatcher;
-    public FraudDetectionDbContext(DbContextOptions<FraudDetectionDbContext> options,
+
+    public FraudDetectionDbContext(
+        DbContextOptions<FraudDetectionDbContext> options,
         IDomainEventDispatcher? domainEventDispatcher)
         : base(options)
     {
@@ -23,7 +25,6 @@ public class FraudDetectionDbContext : DbContext, IApplicationDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FraudDetectionDbContext).Assembly);
     }
 
@@ -31,7 +32,7 @@ public class FraudDetectionDbContext : DbContext, IApplicationDbContext
     {
         // Publish domain events before saving
         var entities = ChangeTracker.Entries<BaseEntity>()
-            .Where(e => e.Entity.DomainEvents.Any())
+            .Where(e => e.Entity.DomainEvents.Count != 0)
             .Select(e => e.Entity)
             .ToList();
 
@@ -45,7 +46,7 @@ public class FraudDetectionDbContext : DbContext, IApplicationDbContext
         // Propagate cancellation token to base SaveChangesAsync
         var result = await base.SaveChangesAsync(cancellationToken);
 
-        if(domainEvents.Count != 0 && _domainEventDispatcher != null)
+        if (domainEvents.Count != 0 && _domainEventDispatcher != null)
         {
             await _domainEventDispatcher.DispatchAsync(domainEvents, cancellationToken);
         }

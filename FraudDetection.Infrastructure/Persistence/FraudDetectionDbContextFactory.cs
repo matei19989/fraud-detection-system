@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
 
 namespace FraudDetection.Infrastructure.Persistence;
 
@@ -13,6 +12,6 @@ public class FraudDetectionDbContextFactory : IDesignTimeDbContextFactory<FraudD
         optionsBuilder.UseSqlServer(
             "Server=localhost;Database=FraudDetectionDb;Trusted_Connection=true;TrustServerCertificate=true;");
 
-        return new FraudDetectionDbContext(optionsBuilder.Options,null!);
+        return new FraudDetectionDbContext(optionsBuilder.Options, null!);
     }
 }

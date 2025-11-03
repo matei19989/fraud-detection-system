@@ -26,7 +26,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
         try
         {
             var notification = domainEvent as INotification;
-            
+
             if (notification != null)
             {
                 await _publisher.Publish(notification, cancellationToken);
