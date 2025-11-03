@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FraudDetection.API", "Fraud
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FraudDetection.Contracts", "FraudDetection.Contracts\FraudDetection.Contracts.csproj", "{2925D466-2B12-462D-AB72-A206452C1463}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FraudDetection.Domain.UnitTests", "FraudDetection.Domain.UnitTests\FraudDetection.Domain.UnitTests.csproj", "{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,18 @@ Global
 		{2925D466-2B12-462D-AB72-A206452C1463}.Release|x64.Build.0 = Release|Any CPU
 		{2925D466-2B12-462D-AB72-A206452C1463}.Release|x86.ActiveCfg = Release|Any CPU
 		{2925D466-2B12-462D-AB72-A206452C1463}.Release|x86.Build.0 = Release|Any CPU
+		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Debug|x64.Build.0 = Debug|Any CPU
+		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Debug|x86.Build.0 = Debug|Any CPU
+		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Release|x64.ActiveCfg = Release|Any CPU
+		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Release|x64.Build.0 = Release|Any CPU
+		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Release|x86.ActiveCfg = Release|Any CPU
+		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
