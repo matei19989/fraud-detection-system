@@ -14,7 +14,6 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
-
         services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
 
         // Add DbContext

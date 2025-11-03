@@ -8,7 +8,9 @@ namespace FraudDetection.Infrastructure.Persistence;
 public class FraudDetectionDbContext : DbContext, IApplicationDbContext
 {
     private readonly IDomainEventDispatcher? _domainEventDispatcher;
-    public FraudDetectionDbContext(DbContextOptions<FraudDetectionDbContext> options,
+
+    public FraudDetectionDbContext(
+        DbContextOptions<FraudDetectionDbContext> options,
         IDomainEventDispatcher? domainEventDispatcher)
         : base(options)
     {
@@ -23,7 +25,6 @@ public class FraudDetectionDbContext : DbContext, IApplicationDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FraudDetectionDbContext).Assembly);
     }
 

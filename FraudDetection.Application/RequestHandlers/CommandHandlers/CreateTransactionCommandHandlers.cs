@@ -17,9 +17,9 @@ public class CreateTransactionCommandHandler : IRequestHandler<CreateTransaction
     private readonly ILogger<CreateTransactionCommandHandler> _logger;
 
     public CreateTransactionCommandHandler(
-    IApplicationDbContext dbContext,
-    IFraudDetectionService fraudDetectionService,
-    ILogger<CreateTransactionCommandHandler> logger)
+        IApplicationDbContext dbContext,
+        IFraudDetectionService fraudDetectionService,
+        ILogger<CreateTransactionCommandHandler> logger)
     {
         _dbContext = dbContext;
         _fraudDetectionService = fraudDetectionService;
@@ -32,8 +32,7 @@ public class CreateTransactionCommandHandler : IRequestHandler<CreateTransaction
             "Creating transaction for account: {AccountId}, amount: {Amount} {Currency}",
             request.AccountId,
             request.Amount,
-            request.Currency
-        );
+            request.Currency);
 
         var amount = new Money(request.Amount, request.Currency);
         var merchant = new MerchantInfo(request.MerchantId, request.MerchantName, request.MerchantCategory);
@@ -72,7 +71,7 @@ public class CreateTransactionCommandHandler : IRequestHandler<CreateTransaction
 
         _logger.LogInformation(
             "Transaction {TransactionId} created, starting analysis",
-             transaction.Id);
+            transaction.Id);
 
         var fraudAnalysis = await _fraudDetectionService.AnalyzeTransactionAsync(
             transaction,

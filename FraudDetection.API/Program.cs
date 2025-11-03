@@ -32,12 +32,15 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+// Exception handling & ProblemDetails
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
+// App-specific services
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IHubContextWrapper, FraudHubContextWrapper>();
 
+// Infrastructure & Application services
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
