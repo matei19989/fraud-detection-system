@@ -26,7 +26,7 @@ public class Transaction : BaseEntity
     public IReadOnlyCollection<FraudAlert> FraudAlerts => _fraudAlerts.AsReadOnly();
 
 #pragma warning disable CS8618
-    private Transaction() { }
+    private Transaction() { } // For EF Core
 #pragma warning restore CS8618
 
     public Transaction(

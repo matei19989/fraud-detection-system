@@ -21,7 +21,7 @@ public class Account : BaseEntity
     public IReadOnlyCollection<Transaction> Transactions => _transactions.AsReadOnly();
 
 #pragma warning disable CS8618
-    private Account() { }
+    private Account() { } // For EF Core
 #pragma warning restore CS8618
 
     public Account(
@@ -60,7 +60,6 @@ public class Account : BaseEntity
 
         AverageTransactionAmount = TotalSpent.Amount / TotalTransactions;
         LastTransactionDate = DateTime.UtcNow;
-
         SetUpdatedAt();
     }
 
@@ -105,7 +104,7 @@ public class Account : BaseEntity
         if (TotalTransactions < 5)
             return false;
 
-        //Potential unusual amount
+        // Potential unusual amount
         return amount > (AverageTransactionAmount * 5);
     }
 
