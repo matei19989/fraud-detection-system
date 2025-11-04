@@ -19,6 +19,10 @@ public class FraudRule : BaseEntity
     private readonly List<FraudAlert> _alerts = new();
     public IReadOnlyCollection<FraudAlert> Alerts => _alerts.AsReadOnly();
 
+#pragma warning disable CS8618
+    private FraudRule() { } // For EF Core
+#pragma warning restore CS8618
+
     public FraudRule(
         string name,
         string description,

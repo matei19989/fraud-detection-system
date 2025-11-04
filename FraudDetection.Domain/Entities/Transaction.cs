@@ -25,6 +25,10 @@ public class Transaction : BaseEntity
     private readonly List<FraudAlert> _fraudAlerts = new();
     public IReadOnlyCollection<FraudAlert> FraudAlerts => _fraudAlerts.AsReadOnly();
 
+#pragma warning disable CS8618
+    private Transaction() { } // For EF Core
+#pragma warning restore CS8618
+
     public Transaction(
         string accountId,
         Money amount,
@@ -44,7 +48,7 @@ public class Transaction : BaseEntity
         Location = location ?? throw new ArgumentNullException(nameof(location));
         DeviceId = deviceId;
         Description = description;
-        
+
         Status = TransactionStatus.Pending;
         RiskLevel = FraudRiskLevel.None;
         FraudScore = 0;

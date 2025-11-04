@@ -1,13 +1,25 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using FraudDetection.Application;
+using FraudDetection.Infrastructure;
+using FraudDetection.API.Hubs;
+using FraudDetection.API.Middleware;
+using FraudDetection.API.Extensions;
+using FraudDetection.API.Services;
+using FraudDetection.Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new()
+    {
+        Title = "Fraud Detection API",
+        Version = "v1",
+        Description = "API for detecting fraudulent activities"
+    });
+});
 
 // Add CORS for React frontend
 builder.Services.AddCors(options =>
@@ -20,28 +32,38 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-// Add SignalR
-builder.Services.AddSignalR();
+// Exception handling & ProblemDetails
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-// TODO: Add MediatR configuration
-// TODO: Add DbContext
-// TODO: Add Application services
-// TODO: Add Infrastructure services
+// App-specific services
+builder.Services.AddSignalR();
+builder.Services.AddScoped<IHubContextWrapper, FraudHubContextWrapper>();
+
+// Infrastructure & Application services
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+await app.InitializeDatabaseAsync();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Fraud Detection API v1");
+        options.RoutePrefix = "swagger";
+    });
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 app.UseAuthorization();
-app.MapControllers();
 
-// TODO: Map SignalR hubs
+app.MapControllers();
+app.MapHub<FraudHub>("/hubs/fraud");
 
 app.Run();

@@ -2,10 +2,7 @@ name: Backend CI
 
 on:
   push:
-    branches: [ main ]
-    paths: 
-      - 'FraudDetection.*/**'
-      - 'FraudDetectionSystem.sln'
+    branches: [ main , 'feature/*']
   pull_request:
     branches: [ main ]
 
@@ -15,10 +12,10 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v4
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
 
@@ -27,3 +24,6 @@ jobs:
 
     - name: Build
       run: dotnet build FraudDetectionSystem.sln --configuration Release --no-restore
+
+    - name: Run Tests
+      run: dotnet test FraudDetectionSystem.sln --configuration Release --no-build --verbosity normal
