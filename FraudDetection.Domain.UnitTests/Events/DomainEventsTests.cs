@@ -115,7 +115,7 @@ public class DomainEventsTests
             new TransactionStatusChangedEvent(Guid.NewGuid(), TransactionStatus.Approved),
             new RuleTriggeredEvent(Guid.NewGuid(), Guid.NewGuid(), "Rule", FraudRiskLevel.Medium, 60.0)
         };
-        
+
         var after = DateTime.UtcNow;
 
         events.Should().AllSatisfy(e =>

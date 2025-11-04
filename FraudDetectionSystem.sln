@@ -1,5 +1,4 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -14,6 +13,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FraudDetection.Contracts", "FraudDetection.Contracts\FraudDetection.Contracts.csproj", "{2925D466-2B12-462D-AB72-A206452C1463}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FraudDetection.Domain.UnitTests", "FraudDetection.Domain.UnitTests\FraudDetection.Domain.UnitTests.csproj", "{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FraudDetection.Application.UnitTests", "FraudDetection.Application.UnitTests\FraudDetection.Application.UnitTests.csproj", "{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,6 +98,18 @@ Global
 		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Release|x64.Build.0 = Release|Any CPU
 		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Release|x86.ActiveCfg = Release|Any CPU
 		{6D5E4CD4-B0A4-455D-AE7E-4B45D3FCCD26}.Release|x86.Build.0 = Release|Any CPU
+		{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}.Debug|x64.Build.0 = Debug|Any CPU
+		{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}.Debug|x86.Build.0 = Debug|Any CPU
+		{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}.Release|x64.ActiveCfg = Release|Any CPU
+		{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}.Release|x64.Build.0 = Release|Any CPU
+		{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}.Release|x86.ActiveCfg = Release|Any CPU
+		{C35BFBB9-5B69-47D3-A7F6-91445C1D1E7A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
