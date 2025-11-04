@@ -22,7 +22,7 @@ public class FraudAlert : BaseEntity
     public FraudRule? Rule { get; private set; }
 
 #pragma warning disable CS8618
-    private FraudAlert() { }
+    private FraudAlert() { } // For EF Core
 #pragma warning restore CS8618
 
     public FraudAlert(
