@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from './components/ui/toaster';
@@ -22,39 +22,64 @@ const queryClient = new QueryClient({
 function AppContent() {
   const [isSignalRConnected, setIsSignalRConnected] = useState(false);
   const { toast } = useToast();
+  const initialized = useRef(false);
 
   useEffect(() => {
-    // Start SignalR connection
-    signalRService.start().then(() => {
-      setIsSignalRConnected(true);
+    // Prevent double init on HMR
+    if (initialized.current) return;
+    initialized.current = true;
 
-      // Listen for fraud detected events
-      signalRService.onFraudDetected((data) => {
-        if (data.fraudScore >= 80) {
-          toast({
-            variant: 'destructive',
-            title: '🚨 High-Risk Transaction Detected!',
-            description: `Transaction ${data.transactionId.substring(0, 8)}... | Score: ${data.fraudScore.toFixed(1)} | ${data.riskLevel}`,
-          });
+    let isMounted = true;
+
+    const init = async () => {
+      try {
+        const conn = await signalRService.start();
+        if (!isMounted || !conn) return;
+
+        setIsSignalRConnected(true);
+        console.log('SignalR Connected (App)');
+
+        // Attach listeners once
+        signalRService.onFraudDetected((data) => {
+          if (data.fraudScore >= 80) {
+            toast({
+              variant: 'destructive',
+              title: 'High-Risk Transaction Detected!',
+              description: `Transaction ${data.transactionId.substring(0, 8)}... | Score: ${data.fraudScore.toFixed(1)} | ${data.riskLevel}`,
+            });
+          }
+        });
+
+        signalRService.onTransactionCreated(() => {
+          queryClient.invalidateQueries({ queryKey: ['transactions'] });
+          queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        });
+
+        signalRService.onAlertStatusChanged(() => {
+          queryClient.invalidateQueries({ queryKey: ['alerts'] });
+          queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        });
+      } catch (err) {
+        if (isMounted) {
+          console.error('SignalR init failed:', err);
+          setIsSignalRConnected(false);
         }
-      });
+      }
+    };
 
-      // Listen for transaction created events (optional)
-      signalRService.onTransactionCreated(() => {
-        // Could refresh transactions list here
-        queryClient.invalidateQueries({ queryKey: ['transactions'] });
-        queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      });
+    init();
 
-      // Listen for alert status changes
-      signalRService.onAlertStatusChanged(() => {
-        queryClient.invalidateQueries({ queryKey: ['alerts'] });
-        queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      });
+    const unsubscribe = signalRService.onStatusChange((status) => {
+      setIsSignalRConnected(status === 'Connected');
     });
 
     return () => {
-      signalRService.stop();
+      isMounted = false;
+      unsubscribe();
+      // Don't stop on unmount during dev — let HMR reuse
+      if (import.meta.env.PROD) {
+        signalRService.stop();
+      }
     };
   }, [toast]);
 

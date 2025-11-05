@@ -25,7 +25,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         policy => policy
-            .WithOrigins("http://localhost:5173") // Vite default port
+            .WithOrigins(
+                "http://localhost:5173",
+                "http://localhost:5121") // Vite default port
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -56,7 +58,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseExceptionHandler();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 app.UseAuthorization();
 
