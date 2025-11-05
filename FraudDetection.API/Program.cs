@@ -46,8 +46,6 @@ builder.Services.AddApplication();
 
 var app = builder.Build();
 
-await app.InitializeDatabaseAsync();
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -67,3 +65,5 @@ app.MapControllers();
 app.MapHub<FraudHub>("/hubs/fraud");
 
 app.Run();
+
+public partial class Program { }
