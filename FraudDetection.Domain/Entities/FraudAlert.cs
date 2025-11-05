@@ -1,5 +1,6 @@
 using FraudDetection.Domain.Common;
 using FraudDetection.Domain.Enums;
+using FraudDetection.Domain.Events;
 
 namespace FraudDetection.Domain.Entities;
 
@@ -61,6 +62,8 @@ public class FraudAlert : BaseEntity
         ReviewedBy = investigatedBy;
         ReviewedAt = DateTime.UtcNow;
         SetUpdatedAt();
+
+        AddDomainEvent(new AlertStatusChangedEvent(Id, TransactionId, Status, ReviewedBy, ReviewNotes));
     }
 
     public void Resolve(string resolvedBy, string notes)
@@ -73,6 +76,8 @@ public class FraudAlert : BaseEntity
         ReviewedAt = DateTime.UtcNow;
         ReviewNotes = notes;
         SetUpdatedAt();
+
+        AddDomainEvent(new AlertStatusChangedEvent(Id, TransactionId, Status, ReviewedBy, ReviewNotes));
     }
 
     public void MarkAsFalsePositive(string reviewedBy, string notes)
@@ -85,6 +90,8 @@ public class FraudAlert : BaseEntity
         ReviewedAt = DateTime.UtcNow;
         ReviewNotes = notes;
         SetUpdatedAt();
+
+        AddDomainEvent(new AlertStatusChangedEvent(Id, TransactionId, Status, ReviewedBy, ReviewNotes));
     }
 
     public void ConfirmFraud(string confirmedBy, string notes)
@@ -94,5 +101,7 @@ public class FraudAlert : BaseEntity
         ReviewedAt = DateTime.UtcNow;
         ReviewNotes = notes;
         SetUpdatedAt();
+
+        AddDomainEvent(new AlertStatusChangedEvent(Id, TransactionId, Status, ReviewedBy, ReviewNotes));
     }
 }
