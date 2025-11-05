@@ -2,7 +2,6 @@ using FraudDetection.Application;
 using FraudDetection.Infrastructure;
 using FraudDetection.API.Hubs;
 using FraudDetection.API.Middleware;
-using FraudDetection.API.Extensions;
 using FraudDetection.API.Services;
 using FraudDetection.Application.Interfaces;
 
