@@ -24,17 +24,15 @@ public class GetDashboardStatisticsQueryHandler : IRequestHandler<GetDashboardSt
         var monthAgo = today.AddDays(-30);
 
         // Execute in parallel to improve performance
-        var statisticsTask = GetTransactionStatistics(today, weekAgo, monthAgo, cancellationToken);
-        var alertsTask = GetAlertStatistics(today, cancellationToken);
-        var amountsTask = GetAmountStatistics(today, cancellationToken);
-        var riskBreakdownTask = GetRiskBreakdown(today, cancellationToken);
+        var statisticsTask = await GetTransactionStatistics(today, weekAgo, monthAgo, cancellationToken);
+        var alertsTask = await GetAlertStatistics(today, cancellationToken);
+        var amountsTask = await GetAmountStatistics(today, cancellationToken);
+        var riskBreakdownTask = await GetRiskBreakdown(today, cancellationToken);
 
-        await Task.WhenAll(statisticsTask, alertsTask, amountsTask, riskBreakdownTask);
-
-        var (todayCount, weekCount, monthCount) = await statisticsTask;
-        var (activeAlerts, resolvedToday) = await alertsTask;
-        var (totalProcessed, totalFlagged) = await amountsTask;
-        var (highRisk, mediumRisk, lowRisk) = await riskBreakdownTask;
+        var (todayCount, weekCount, monthCount) = statisticsTask;
+        var (activeAlerts, resolvedToday) = alertsTask;
+        var (totalProcessed, totalFlagged) = amountsTask;
+        var (highRisk, mediumRisk, lowRisk) = riskBreakdownTask;
 
         var fraudDetectionRate = todayCount > 0
             ? (decimal)highRisk / todayCount * 100
