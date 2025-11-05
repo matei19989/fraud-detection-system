@@ -16,6 +16,29 @@ public class TransactionsController : ControllerBase
         _mediator = mediator;
     }
 
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllTransactions(
+        [FromQuery] string? status,
+        [FromQuery] string? riskLevel,
+        [FromQuery] string? accountId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetAllTransactionsQuery
+        {
+            Status = status,
+            RiskLevel = riskLevel,
+            AccountId = accountId,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        var result = await _mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
+
     //create new transaction
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
