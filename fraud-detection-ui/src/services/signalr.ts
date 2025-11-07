@@ -34,7 +34,7 @@ export class SignalRService {
       console.log('SignalR Connected');
       this.notifyStatus('Connected');
       return this.connection;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('SignalR failed to start:', err);
       this.notifyStatus('Disconnected');
       return null;
@@ -87,15 +87,15 @@ export class SignalRService {
   }
 
   /** Event listeners */
-  onTransactionCreated(callback: (data: any) => void) {
+  onTransactionCreated(callback: (data: unknown) => void) {
     this.connection?.on('TransactionCreated', callback);
   }
 
-  onFraudDetected(callback: (data: any) => void) {
+  onFraudDetected(callback: (data: unknown) => void) {
     this.connection?.on('FraudDetected', callback);
   }
 
-  onAlertStatusChanged(callback: (data: any) => void) {
+  onAlertStatusChanged(callback: (data: unknown) => void) {
     this.connection?.on('AlertStatusChanged', callback);
   }
 
