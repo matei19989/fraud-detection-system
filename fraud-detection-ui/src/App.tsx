@@ -39,13 +39,21 @@ function AppContent() {
         setIsSignalRConnected(true);
         console.log('SignalR Connected (App)');
 
+        interface FraudData{
+          transactionId: string;
+          fraudScore: number;
+          riskLevel: string;
+        }
+
         // Attach listeners once
-        signalRService.onFraudDetected((data) => {
-          if (data.fraudScore >= 80) {
+        signalRService.onFraudDetected((data : unknown) => {
+          const fraudData = data as FraudData;
+
+          if (fraudData.fraudScore >= 80) {
             toast({
               variant: 'destructive',
               title: 'High-Risk Transaction Detected!',
-              description: `Transaction ${data.transactionId.substring(0, 8)}... | Score: ${data.fraudScore.toFixed(1)} | ${data.riskLevel}`,
+              description: `Transaction ${fraudData.transactionId.substring(0, 8)}... | Score: ${fraudData.fraudScore.toFixed(1)} | ${fraudData.riskLevel}`,
             });
           }
         });
