@@ -1,16 +1,25 @@
-import * as signalR from '@microsoft/signalr';
+import * as signalR from "@microsoft/signalr";
 
-const HUB_URL = import.meta.env.VITE_SIGNALR_URL || 'http://localhost:5121/hubs/fraud';
+const HUB_URL =
+  import.meta.env.VITE_SIGNALR_URL || "http://localhost:5121/hubs/fraud";
 
-export type SignalRConnectionStatus = 'Connected' | 'Connecting' | 'Disconnected' | 'Reconnecting';
+export type SignalRConnectionStatus =
+  | "Connected"
+  | "Connecting"
+  | "Disconnected"
+  | "Reconnecting";
 
 export class SignalRService {
   private connection: signalR.HubConnection | null = null;
-  private statusCallbacks: Array<(status: SignalRConnectionStatus) => void> = [];
+  private statusCallbacks: Array<(status: SignalRConnectionStatus) => void> =
+    [];
 
   /** Start or resume the SignalR connection */
   async start(): Promise<signalR.HubConnection | null> {
-    if (this.connection && this.connection.state === signalR.HubConnectionState.Connected) {
+    if (
+      this.connection &&
+      this.connection.state === signalR.HubConnectionState.Connected
+    ) {
       return this.connection;
     }
 
@@ -22,21 +31,21 @@ export class SignalRService {
       .build();
 
     // Register lifecycle events
-    this.connection.onreconnecting(() => this.notifyStatus('Reconnecting'));
-    this.connection.onreconnected(() => this.notifyStatus('Connected'));
-    this.connection.onclose(() => this.notifyStatus('Disconnected'));
+    this.connection.onreconnecting(() => this.notifyStatus("Reconnecting"));
+    this.connection.onreconnected(() => this.notifyStatus("Connected"));
+    this.connection.onclose(() => this.notifyStatus("Disconnected"));
 
     // Immediately notify 'Connecting'
-    this.notifyStatus('Connecting');
+    this.notifyStatus("Connecting");
 
     try {
       await this.connection.start();
-      console.log('SignalR Connected');
-      this.notifyStatus('Connected');
+      console.log("SignalR Connected");
+      this.notifyStatus("Connected");
       return this.connection;
     } catch (err: unknown) {
-      console.error('SignalR failed to start:', err);
-      this.notifyStatus('Disconnected');
+      console.error("SignalR failed to start:", err);
+      this.notifyStatus("Disconnected");
       return null;
     }
   }
@@ -46,7 +55,7 @@ export class SignalRService {
     if (this.connection) {
       await this.connection.stop();
       this.connection = null;
-      this.notifyStatus('Disconnected');
+      this.notifyStatus("Disconnected");
     }
   }
 
@@ -55,21 +64,24 @@ export class SignalRService {
     return this.connection;
   }
 
+  onTransactionStatusChanged(callback: (data: unknown) => void) {
+    this.connection?.on("TransactionStatusChanged", callback);
+  }
+
   /** Get current connection status based on the HubConnection state */
   getStatus(): SignalRConnectionStatus {
-  if (!this.connection) return 'Disconnected';
+    if (!this.connection) return "Disconnected";
 
-  switch (this.connection.state) {
-    case signalR.HubConnectionState.Connected:
-      return 'Connected';
-    case signalR.HubConnectionState.Connecting:
-    case signalR.HubConnectionState.Reconnecting:
-      return 'Connected'; // treat these as "connected" for UX
-    default:
-      return 'Disconnected';
+    switch (this.connection.state) {
+      case signalR.HubConnectionState.Connected:
+        return "Connected";
+      case signalR.HubConnectionState.Connecting:
+      case signalR.HubConnectionState.Reconnecting:
+        return "Connected"; // treat these as "connected" for UX
+      default:
+        return "Disconnected";
+    }
   }
-}
-
 
   /** Subscribe to status changes */
   onStatusChange(callback: (status: SignalRConnectionStatus) => void) {
@@ -77,26 +89,28 @@ export class SignalRService {
     // Immediately notify current status
     callback(this.getStatus());
     return () => {
-      this.statusCallbacks = this.statusCallbacks.filter(cb => cb !== callback);
+      this.statusCallbacks = this.statusCallbacks.filter(
+        (cb) => cb !== callback
+      );
     };
   }
 
   /** Notify all listeners about a status change */
   private notifyStatus(status: SignalRConnectionStatus) {
-    this.statusCallbacks.forEach(cb => cb(status));
+    this.statusCallbacks.forEach((cb) => cb(status));
   }
 
   /** Event listeners */
   onTransactionCreated(callback: (data: unknown) => void) {
-    this.connection?.on('TransactionCreated', callback);
+    this.connection?.on("TransactionCreated", callback);
   }
 
   onFraudDetected(callback: (data: unknown) => void) {
-    this.connection?.on('FraudDetected', callback);
+    this.connection?.on("FraudDetected", callback);
   }
 
   onAlertStatusChanged(callback: (data: unknown) => void) {
-    this.connection?.on('AlertStatusChanged', callback);
+    this.connection?.on("AlertStatusChanged", callback);
   }
 
   off(eventName: string) {

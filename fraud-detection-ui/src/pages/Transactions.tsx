@@ -23,7 +23,7 @@ export function Transactions() {
       accountId: filters.accountId || undefined,
       pageSize: 50,
     }).then(res => res.data),
-    refetchInterval: 15000,
+    refetchInterval: 5000,
   });
 
   const handleSearch = () => {

@@ -22,6 +22,7 @@ public static class DependencyInjection
         });
 
         services.AddValidatorsFromAssembly(assembly);
+        services.AddMemoryCache();
 
         services.AddScoped<IFraudDetectionService, FraudDetectionService>();
         services.AddScoped<IRuleEvaluationEngine, RuleEvaluationEngine>();

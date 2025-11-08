@@ -19,6 +19,12 @@ const queryClient = new QueryClient({
   },
 });
 
+interface FraudData {
+  transactionId: string;
+  fraudScore: number;
+  riskLevel: string;
+}
+
 function AppContent() {
   const [isSignalRConnected, setIsSignalRConnected] = useState(false);
   const { toast } = useToast();
@@ -37,16 +43,22 @@ function AppContent() {
         if (!isMounted || !conn) return;
 
         setIsSignalRConnected(true);
-        console.log('SignalR Connected (App)');
+        console.log('SignalR Connected');
 
-        interface FraudData{
-          transactionId: string;
-          fraudScore: number;
-          riskLevel: string;
-        }
+        // TRANSACTION CREATED EVENT
+        signalRService.onTransactionCreated((data: unknown) => {
+          console.log('🔵 TransactionCreated event:', data);
+          
+          // Force immediate refetch
+          queryClient.refetchQueries({ queryKey: ['transactions'] });
+          queryClient.refetchQueries({ queryKey: ['dashboard'] });
+          queryClient.refetchQueries({ queryKey: ['dashboard', 'recentTransactions'] });
+          queryClient.refetchQueries({ queryKey: ['dashboard', 'statistics'] });
+        });
 
-        // Attach listeners once
-        signalRService.onFraudDetected((data : unknown) => {
+        // FRAUD DETECTED EVENT
+        signalRService.onFraudDetected((data: unknown) => {
+          console.log('FraudDetected event:', data);
           const fraudData = data as FraudData;
 
           if (fraudData.fraudScore >= 80) {
@@ -56,17 +68,31 @@ function AppContent() {
               description: `Transaction ${fraudData.transactionId.substring(0, 8)}... | Score: ${fraudData.fraudScore.toFixed(1)} | ${fraudData.riskLevel}`,
             });
           }
+
+          // Refetch to show updated fraud scores
+          queryClient.refetchQueries({ queryKey: ['transactions'] });
+          queryClient.refetchQueries({ queryKey: ['dashboard'] });
         });
 
-        signalRService.onTransactionCreated(() => {
-          queryClient.invalidateQueries({ queryKey: ['transactions'] });
-          queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        // TRANSACTION STATUS CHANGED EVENT (Key for fraud score updates!)
+        signalRService.onTransactionStatusChanged((data: unknown) => {
+          console.log('TransactionStatusChanged event:', data);
+          
+          // This fires when fraud analysis completes
+          queryClient.refetchQueries({ queryKey: ['transactions'] });
+          queryClient.refetchQueries({ queryKey: ['dashboard'] });
+          queryClient.refetchQueries({ queryKey: ['dashboard', 'recentTransactions'] });
         });
 
-        signalRService.onAlertStatusChanged(() => {
-          queryClient.invalidateQueries({ queryKey: ['alerts'] });
-          queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        // ALERT STATUS CHANGED EVENT
+        signalRService.onAlertStatusChanged((data: unknown) => {
+          console.log('AlertStatusChanged event:', data);
+          
+          queryClient.refetchQueries({ queryKey: ['alerts'] });
+          queryClient.refetchQueries({ queryKey: ['dashboard'] });
+          queryClient.refetchQueries({ queryKey: ['dashboard', 'recentAlerts'] });
         });
+
       } catch (err) {
         if (isMounted) {
           console.error('SignalR init failed:', err);
@@ -78,6 +104,7 @@ function AppContent() {
     init();
 
     const unsubscribe = signalRService.onStatusChange((status) => {
+      console.log('🔌 SignalR status:', status);
       setIsSignalRConnected(status === 'Connected');
     });
 

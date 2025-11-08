@@ -2,6 +2,7 @@ using FraudDetection.Application.Interfaces;
 using FraudDetection.Domain.Entities;
 using FraudDetection.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace FraudDetection.Application.Services;
@@ -11,15 +12,21 @@ public class FraudDetectionService : IFraudDetectionService
     private readonly IApplicationDbContext _dbContext;
     private readonly IRuleEvaluationEngine _ruleEngine;
     private readonly ILogger<FraudDetectionService> _logger;
+    private readonly IMemoryCache _cache;
+    
+    private const string ActiveRulesCacheKey = "ActiveFraudRules";
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(10);
 
     public FraudDetectionService(
         IApplicationDbContext dbContext,
         IRuleEvaluationEngine ruleEngine,
-        ILogger<FraudDetectionService> logger)
+        ILogger<FraudDetectionService> logger,
+        IMemoryCache cache)
     {
         _dbContext = dbContext;
         _ruleEngine = ruleEngine;
         _logger = logger;
+        _cache = cache;
     }
 
     public async Task<FraudAnalysisResult> AnalyzeTransactionAsync(
@@ -35,6 +42,7 @@ public class FraudDetectionService : IFraudDetectionService
         try
         {
             var account = await _dbContext.Accounts
+                .AsNoTracking()
                 .FirstOrDefaultAsync(a => a.AccountId == transaction.AccountId, cancellationToken);
 
             if (account == null)
@@ -47,56 +55,56 @@ public class FraudDetectionService : IFraudDetectionService
                 return CreateSafeResult(transaction);
             }
 
-            var activeRules = await _dbContext.FraudRules
-                .Where(r => r.IsActive)
-                .OrderByDescending(r => r.Priority)
-                .ToListAsync(cancellationToken);
+            // Get rules from cache or database
+            var activeRules = await GetActiveRulesAsync(cancellationToken);
 
             _logger.LogInformation(
-                "Evaluating {RuleCount} activated fraud rules for transaction {TransactionId}",
+                "Evaluating {RuleCount} active fraud rules for transaction {TransactionId} (cached: {IsCached})",
+                activeRules.Count,
+                transaction.Id,
+                _cache.TryGetValue(ActiveRulesCacheKey, out _));
+
+            // PARALLEL EVALUATION - All rules run simultaneously
+            var evaluationTasks = activeRules.Select(rule =>
+                _ruleEngine.EvaluateRuleAsync(rule, transaction, account, cancellationToken));
+
+            var ruleResults = await Task.WhenAll(evaluationTasks);
+
+            _logger.LogInformation(
+                "Completed parallel evaluation of {RuleCount} rules in transaction {TransactionId}",
                 activeRules.Count,
                 transaction.Id);
 
-            var ruleResults = new List<RuleEvaluationResult>();
+            // Process triggered rules
             var alertsCreated = new List<FraudAlert>();
-
-            foreach (var rule in activeRules)
+            
+            foreach (var result in ruleResults.Where(r => r.Triggered))
             {
-                var result = await _ruleEngine.EvaluateRuleAsync(
-                    rule,
-                    transaction,
-                    account,
-                    cancellationToken);
+                var rule = activeRules.First(r => r.Id == result.RuleId);
+                
+                _logger.LogWarning(
+                    "Rule {RuleName} triggered for transaction {TransactionId} with score {Score}",
+                    rule.Name,
+                    transaction.Id,
+                    result.Score);
 
-                ruleResults.Add(result);
+                rule.RecordTrigger();
 
-                if (result.Triggered)
-                {
-                    _logger.LogWarning(
-                        "Rule {RuleName} triggered for transaction {TransactionId} with a score of {Score}",
-                        rule.Name,
-                        transaction.Id,
-                        result.Score);
+                var alert = new FraudAlert(
+                    transaction.Id,
+                    rule.Name,
+                    rule.RiskLevel,
+                    result.Score,
+                    $"Rule '{rule.Name}' triggered",
+                    result.Details,
+                    rule.Id);
 
-                    rule.RecordTrigger();
-
-                    var alert = new FraudAlert(
-                        transaction.Id,
-                        rule.Name,
-                        rule.RiskLevel,
-                        result.Score,
-                        $"Rule '{rule.Name}' triggered",
-                        result.Details,
-                        rule.Id);
-
-                    alertsCreated.Add(alert);
-                    await _dbContext.FraudAlerts.AddAsync(alert, cancellationToken);
-
-                    transaction.AddFraudAlert(alert);
-                }
+                alertsCreated.Add(alert);
+                await _dbContext.FraudAlerts.AddAsync(alert, cancellationToken);
+                transaction.AddFraudAlert(alert);
             }
 
-            var totalScore = CalculateFraudScore(ruleResults, activeRules);
+            var totalScore = CalculateFraudScore(ruleResults.ToList(), activeRules);
             var riskLevel = DetermineRiskLevel(totalScore);
 
             transaction.UpdateFraudScore(totalScore, riskLevel);
@@ -104,7 +112,7 @@ public class FraudDetectionService : IFraudDetectionService
             if (riskLevel >= FraudRiskLevel.High)
             {
                 _logger.LogWarning(
-                    "HIGH RISK TRANSACTION detected TransactionId: {TransactionId}, Score: {Score}, Risk: {Risk}",
+                    "HIGH RISK TRANSACTION detected - TransactionId: {TransactionId}, Score: {Score}, Risk: {Risk}",
                     transaction.Id,
                     totalScore,
                     riskLevel);
@@ -114,7 +122,7 @@ public class FraudDetectionService : IFraudDetectionService
             else if (riskLevel == FraudRiskLevel.Medium)
             {
                 _logger.LogInformation(
-                    "Medium risk transaction detected. TransactionId: {TransactionId}, Score: {Score}",
+                    "Medium risk transaction detected - TransactionId: {TransactionId}, Score: {Score}",
                     transaction.Id,
                     totalScore);
             }
@@ -122,8 +130,7 @@ public class FraudDetectionService : IFraudDetectionService
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation(
-                "Fraud analysis completed for transaction {TransactionId}. " +
-                "Score: {Score}, Risk: {Risk}, Alerts: {AlertCount}",
+                "Fraud analysis completed for transaction {TransactionId} - Score: {Score}, Risk: {Risk}, Alerts: {AlertCount}",
                 transaction.Id,
                 totalScore,
                 riskLevel,
@@ -134,7 +141,7 @@ public class FraudDetectionService : IFraudDetectionService
                 FraudScore = totalScore,
                 RiskLevel = riskLevel.ToString(),
                 AlertsCreated = alertsCreated,
-                RuleResults = ruleResults
+                RuleResults = ruleResults.ToList()
             };
         }
         catch (Exception ex)
@@ -150,6 +157,26 @@ public class FraudDetectionService : IFraudDetectionService
             throw;
         }
     }
+
+    private async Task<List<FraudRule>> GetActiveRulesAsync(CancellationToken cancellationToken)
+    {
+        return await _cache.GetOrCreateAsync(
+            ActiveRulesCacheKey,
+            async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = CacheDuration;
+                entry.SetPriority(CacheItemPriority.High);
+                
+                _logger.LogInformation("Loading active fraud rules from database (cache miss)");
+                
+                return await _dbContext.FraudRules
+                    .Where(r => r.IsActive)
+                    .OrderByDescending(r => r.Priority)
+                    .AsNoTracking()
+                    .ToListAsync(cancellationToken);
+            }) ?? new List<FraudRule>();
+    }
+
     private double CalculateFraudScore(
         List<RuleEvaluationResult> ruleResults,
         List<FraudRule> allRules)

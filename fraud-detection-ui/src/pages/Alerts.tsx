@@ -20,7 +20,7 @@ export function Alerts() {
       riskLevel: filters.riskLevel || undefined,
       pageSize: 50,
     }).then(res => res.data),
-    refetchInterval: 10000,
+    refetchInterval: 5000,
   });
 
   const investigateMutation = useMutation({

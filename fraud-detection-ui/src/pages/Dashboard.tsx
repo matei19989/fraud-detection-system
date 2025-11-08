@@ -10,19 +10,19 @@ export function Dashboard() {
   const { data: stats } = useQuery({
     queryKey: ['dashboard', 'statistics'],
     queryFn: () => dashboardApi.getStatistics().then(res => res.data),
-    refetchInterval: 30000, // Refetch every 30s
+    refetchInterval: 5000,
   });
 
   const { data: recentTransactions } = useQuery({
     queryKey: ['dashboard', 'recentTransactions'],
     queryFn: () => transactionsApi.getRecent(20).then(res => res.data),
-    refetchInterval: 10000, // Refetch every 10s
+    refetchInterval: 5000, 
   });
 
   const { data: recentAlerts } = useQuery({
     queryKey: ['dashboard', 'recentAlerts'],
     queryFn: () => alertsApi.getRecent(5).then(res => res.data),
-    refetchInterval: 10000,
+    refetchInterval: 5000,
   });
 
   return (

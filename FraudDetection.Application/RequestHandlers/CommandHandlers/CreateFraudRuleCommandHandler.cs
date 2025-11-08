@@ -4,16 +4,19 @@ using FraudDetection.Application.Requests.Commands;
 using FraudDetection.Application.Interfaces;
 using FraudDetection.Domain.Entities;
 using FraudDetection.Domain.Enums;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace FraudDetection.Application.RequestHandlers.CommandHandlers;
 
 public class CreateFraudRuleCommandHandler : IRequestHandler<CreateFraudRuleCommand, FraudRuleDto>
 {
     private readonly IApplicationDbContext _dbContext;
+    private readonly IMemoryCache _cache;
 
-    public CreateFraudRuleCommandHandler(IApplicationDbContext dbContext)
+    public CreateFraudRuleCommandHandler(IApplicationDbContext dbContext, IMemoryCache cache)
     {
         _dbContext = dbContext;
+        _cache = cache;
     }
 
     public async Task<FraudRuleDto> Handle(CreateFraudRuleCommand request, CancellationToken cancellationToken)
@@ -33,6 +36,8 @@ public class CreateFraudRuleCommandHandler : IRequestHandler<CreateFraudRuleComm
 
         await _dbContext.FraudRules.AddAsync(rule, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        _cache.Remove("ActiveFraudRules");
 
         return new FraudRuleDto
         {
