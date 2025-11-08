@@ -4,6 +4,8 @@ using FraudDetection.Application.Requests.Commands;
 using FraudDetection.Domain.Entities;
 using FraudDetection.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Moq;
 using Xunit;
 
 namespace FraudDetection.Application.UnitTests.CommandHandlers;
@@ -34,8 +36,9 @@ public class UpdateFraudRuleCommandHandlerTests
         );
         await context.FraudRules.AddAsync(rule);
         await context.SaveChangesAsync();
-
-        var handler = new UpdateFraudRuleCommandHandler(context);
+        
+        var mockCache = new Mock<IMemoryCache>();
+        var handler = new UpdateFraudRuleCommandHandler(context, mockCache.Object);
         var command = new UpdateFraudRuleCommand
         {
             RuleId = rule.Id,
@@ -56,7 +59,8 @@ public class UpdateFraudRuleCommandHandlerTests
     public async Task Handle_WithNonExistentRule_ShouldReturnNull()
     {
         using var context = CreateContext();
-        var handler = new UpdateFraudRuleCommandHandler(context);
+        var mockCache = new Mock<IMemoryCache>();
+        var handler = new UpdateFraudRuleCommandHandler(context, mockCache.Object);
         var command = new UpdateFraudRuleCommand
         {
             RuleId = Guid.NewGuid(),

@@ -4,6 +4,7 @@ using FraudDetection.Application.Requests.Commands;
 using FraudDetection.Application.RequestHandlers.CommandHandlers;
 using FraudDetection.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Xunit;
 
@@ -14,13 +15,15 @@ public class CreateFraudRuleCommandHandlerTests
     private readonly Mock<IApplicationDbContext> _mockDbContext;
     private readonly Mock<DbSet<FraudRule>> _mockRuleSet;
     private readonly CreateFraudRuleCommandHandler _handler;
+    private readonly Mock<IMemoryCache> _mockCache;
 
     public CreateFraudRuleCommandHandlerTests()
     {
         _mockDbContext = new Mock<IApplicationDbContext>();
         _mockRuleSet = new Mock<DbSet<FraudRule>>();
         _mockDbContext.Setup(x => x.FraudRules).Returns(_mockRuleSet.Object);
-        _handler = new CreateFraudRuleCommandHandler(_mockDbContext.Object);
+        _mockCache = new Mock<IMemoryCache>();
+        _handler = new CreateFraudRuleCommandHandler(_mockDbContext.Object, _mockCache.Object);
     }
 
     [Fact]

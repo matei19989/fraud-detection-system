@@ -1,10 +1,11 @@
 using FluentAssertions;
-using FraudDetection.Application.Interfaces;
 using FraudDetection.Application.RequestHandlers.CommandHandlers;
 using FraudDetection.Application.Requests.Commands;
 using FraudDetection.Domain.Entities;
 using FraudDetection.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Moq;
 using Xunit;
 
 namespace FraudDetection.Application.UnitTests.CommandHandlers;
@@ -37,7 +38,8 @@ public class ActivateFraudRuleCommandHandlerTests
         await context.FraudRules.AddAsync(rule);
         await context.SaveChangesAsync();
 
-        var handler = new ActivateFraudRuleCommandHandler(context);
+        var mockCache = new Mock<IMemoryCache>();
+        var handler = new ActivateFraudRuleCommandHandler(context, mockCache.Object);
         var command = new ActivateFraudRuleCommand { RuleId = rule.Id };
 
         var result = await handler.Handle(command, CancellationToken.None);
@@ -51,7 +53,8 @@ public class ActivateFraudRuleCommandHandlerTests
     public async Task Handle_WithNonExistentRule_ShouldReturnFalse()
     {
         using var context = CreateContext();
-        var handler = new ActivateFraudRuleCommandHandler(context);
+        var mockCache = new Mock<IMemoryCache>();
+        var handler = new ActivateFraudRuleCommandHandler(context, mockCache.Object);
         var command = new ActivateFraudRuleCommand { RuleId = Guid.NewGuid() };
 
         var result = await handler.Handle(command, CancellationToken.None);
